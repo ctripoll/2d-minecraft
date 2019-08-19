@@ -60,7 +60,7 @@ inventory = {
 }
 
 # the player image.
-playerImg = 'images/player.png'
+player_img = 'images/player.png'
 
 # the player position.
 player_x = 0

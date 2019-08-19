@@ -18,15 +18,15 @@ def move_left():
     global player_x
     if player_x > 0:
         player_x -= 1
-        drawPlayer()
+        draw_player()
 
 
 # moves the player right 1 tile.
 def move_right():
-    global player_x, MAP_WIDTH
+    global MAP_WIDTH, player_x
     if player_x < MAP_WIDTH - 1:
         player_x += 1
-        drawPlayer()
+        draw_player()
 
 
 # moves the player up 1 tile.
@@ -34,7 +34,7 @@ def move_up():
     global player_y
     if player_y > 0:
         player_y -= 1
-        drawPlayer()
+        draw_player()
 
 
 # moves the player down 1 tile.
@@ -42,24 +42,24 @@ def move_down():
     global player_y, MAP_HEIGHT
     if player_y < MAP_HEIGHT - 1:
         player_y += 1
-        drawPlayer()
+        draw_player()
 
 
 # picks up the resource at the player's position.
-def pickUp():
+def pick_up():
     global player_x, player_y
     drawing = True
-    currentTile = world[player_x][player_y]
+    current_tile = world[player_x][player_y]
     # if the user doesn't already have too many...
-    if inventory[currentTile] < MAX_TILES:
+    if inventory[current_tile] < MAX_TILES:
         # player now has 1 more of this resource
-        inventory[currentTile] += 1
+        inventory[current_tile] += 1
         # the player is now standing on dirt
         world[player_x][player_y] = DIRT
         # draw the new DIRT tile
-        drawResource(player_x, player_y)
+        draw_resource(player_x, player_y)
         # redraw the inventory with the extra resource.
-        drawInventory()
+        draw_inventory()
 
 
 # place a resource at the player's current position
@@ -67,19 +67,19 @@ def place(resource):
     print('placing: ', names[resource])
     # only place if the player has some left...
     if inventory[resource] > 0:
-        # find out the resourcee at the player's current position
-        currentTile = world[player_x][player_y]
+        # find out the resource at the player's current position
+        current_tile = world[player_x][player_y]
         # pick up the resource the player's standing on
         # (if it's not DIRT)
-        if currentTile is not DIRT:
-            inventory[currentTile] += 1
+        if current_tile is not DIRT:
+            inventory[current_tile] += 1
         # place the resource at the player's current position
         world[player_x][player_y] = resource
         # add the new resource to the inventory
         inventory[resource] -= 1
         # update the display (world and inventory)
-        drawResource(player_x, player_y)
-        drawInventory()
+        draw_resource(player_x, player_y)
+        draw_inventory()
         print('   Placing', names[resource], 'complete')
     # ...and if they have none left...
     else:
@@ -93,16 +93,16 @@ def craft(resource):
     if resource in crafting:
         # keeps track of whether we have the resources
         # to craft this item
-        canBeMade = True
+        can_be_made = True
         # for each item needed to craft the resource
         for i in crafting[resource]:
             # ...if we don't have enough...
             if crafting[resource][i] > inventory[i]:
                 # ...we can't craft it!
-                canBeMade = False
+                can_be_made = False
                 break
         # if we can craft it (we have all needed resources)
-        if canBeMade == True:
+        if can_be_made:
             # take each item from the inventory
             for i in crafting[resource]:
                 inventory[i] -= crafting[resource][i]
@@ -113,44 +113,44 @@ def craft(resource):
         else:
             print('   Can\'t craft', names[resource])
         # update the displayed inventory
-        drawInventory()
+        draw_inventory()
 
 
 # creates a function for placing each resource
-def makeplace(resource):
+def make_place(resource):
     return lambda: place(resource)
 
 
 # attaches a 'placing' function to each key press
-def bindPlacingKeys():
+def bind_placing_keys():
     for k in place_keys:
-        screen.onkey(makeplace(k), place_keys[k])
+        screen.onkey(make_place(k), place_keys[k])
 
 
 # creates a function for crafting each resource
-def makecraft(resource):
+def make_craft(resource):
     return lambda: craft(resource)
 
 
 # attaches a 'crafting' function to each key press
-def bindCraftingKeys():
+def bind_crafting_keys():
     for k in craft_keys:
-        screen.onkey(makecraft(k), craft_keys[k])
+        screen.onkey(make_craft(k), craft_keys[k])
 
 
 # draws a resource at the position (y,x)
-def drawResource(y, x):
+def draw_resource(y, x):
     # this variable stops other stuff being drawn
     global drawing
     # only draw if nothing else is being drawn
-    if drawing == False:
+    if not drawing:
         # something is now being drawn
         drawing = True
         # draw the resource at that position in the tilemap, using the correct image
-        rendererT.goto((y * TILESIZE) + 20, height - (x * TILESIZE) - 20)
+        rendererT.goto((y * TILE_SIZE) + 20, height - (x * TILE_SIZE) - 20)
         # draw tile with correct texture
-        texture = textures[world[y][x]]
-        rendererT.shape(texture)
+        tex = textures[world[y][x]]
+        rendererT.shape(tex)
         rendererT.stamp()
         screen.update()
         # nothing is now being drawn
@@ -158,22 +158,22 @@ def drawResource(y, x):
 
 
 # draws the player on the world
-def drawPlayer():
-    playerT.goto((player_x * TILESIZE) + 20, height - (player_y * TILESIZE) - 20)
+def draw_player():
+    playerT.goto((player_x * TILE_SIZE) + 20, height - (player_y * TILE_SIZE) - 20)
 
 
 # draws the world map
-def drawWorld():
+def draw_world():
     # loop through each row
     for row in range(MAP_HEIGHT):
         # loop through each column in the row
         for column in range(MAP_WIDTH):
             # draw the tile at the current position
-            drawResource(column, row)
+            draw_resource(column, row)
 
 
 # draws the inventory to the screen
-def drawInventory():
+def draw_inventory():
     # this variable stops other stuff being drawn
     global drawing
     # only draw if nothing else is being drawn
@@ -194,42 +194,42 @@ def drawInventory():
         rendererT.color('')
         # display the 'place' and 'craft' text
         for i in range(1, num_rows + 1):
-            rendererT.goto(20, (height - (MAP_HEIGHT * TILESIZE)) - 20 - (i * 100))
+            rendererT.goto(20, (height - (MAP_HEIGHT * TILE_SIZE)) - 20 - (i * 100))
             rendererT.write("place")
-            rendererT.goto(20, (height - (MAP_HEIGHT * TILESIZE)) - 40 - (i * 100))
+            rendererT.goto(20, (height - (MAP_HEIGHT * TILE_SIZE)) - 40 - (i * 100))
             rendererT.write("craft")
         # set the inventory position
-        xPosition = 70
-        yPostition = height - (MAP_HEIGHT * TILESIZE) - 80
-        itemNum = 0
+        x_position = 70
+        y_position = height - (MAP_HEIGHT * TILE_SIZE) - 80
+        item_num = 0
         for i, item in enumerate(resources):
             # add the image
-            rendererT.goto(xPosition, yPostition)
+            rendererT.goto(x_position, y_position)
             rendererT.shape(textures[item])
             rendererT.stamp()
             # add the number in the inventory
-            rendererT.goto(xPosition, yPostition - TILESIZE)
+            rendererT.goto(x_position, y_position - TILE_SIZE)
             rendererT.write(inventory[item])
             # add key to place
-            rendererT.goto(xPosition, yPostition - TILESIZE - 20)
+            rendererT.goto(x_position, y_position - TILE_SIZE - 20)
             rendererT.write(place_keys[item])
             # add key to craft
             if crafting.get(item) is not None:
-                rendererT.goto(xPosition, yPostition - TILESIZE - 40)
+                rendererT.goto(x_position, y_position - TILE_SIZE - 40)
                 rendererT.write(craft_keys[item])
                 # move along to place the next inventory item
-            xPosition += 50
-            itemNum += 1
+            x_position += 50
+            item_num += 1
             # drop down to the next row every 10 items
-            if itemNum % INVWIDTH == 0:
-                xPosition = 70
-                itemNum = 0
-                yPostition -= TILESIZE + 80
+            if item_num % INV_WIDTH == 0:
+                x_position = 70
+                item_num = 0
+                y_position -= TILE_SIZE + 80
         drawing = False
 
 
 # generate the instructions, including crafting rules
-def generateInstructions():
+def generate_instructions():
     instructions.append('Crafting rules:')
     # for each resource that can be crafted...
     for rule in crafting:
@@ -240,32 +240,32 @@ def generateInstructions():
         # add the crafting rule to the instructions
         instructions.append(craft_rule)
     # display the instructions
-    yPos = height - 20
+    y_pos = height - 20
     for item in instructions:
-        rendererT.goto(MAP_WIDTH * TILESIZE + 40, yPos)
+        rendererT.goto(MAP_WIDTH * TILE_SIZE + 40, y_pos)
         rendererT.write(item)
-        yPos -= 20
+        y_pos -= 20
 
 
 # generate a random world
-def generateRandomWorld():
+def generate_random_world():
     # loop through each row
     for row in range(MAP_HEIGHT):
         # loop through each column in that row
         for column in range(MAP_WIDTH):
             # pick a random number between 0 and 10
-            randomNumber = random.randint(0, 10)
+            random_number = random.randint(0, 10)
             # WATER if the random number is a 1 or a 2
-            if randomNumber in [1, 2]:
+            if random_number in [1, 2]:
                 tile = WATER
             # GRASS if the random number is a 3 or a 4
-            elif randomNumber in [3, 4]:
+            elif random_number in [3, 4]:
                 tile = GRASS
             # WOOD if it's a 5
-            elif randomNumber == 5:
+            elif random_number == 5:
                 tile = WOOD
             # SAND if it's a 6
-            elif randomNumber == 6:
+            elif random_number == 6:
                 tile = SAND
             # otherwise it's DIRT
             else:
@@ -279,18 +279,18 @@ def generateRandomWorld():
 # ---
 
 
-TILESIZE = 20
+TILE_SIZE = 20
 # the number of inventory resources per row
-INVWIDTH = 8
+INV_WIDTH = 8
 drawing = False
 
 # create a new 'screen' object
 screen = turtle.Screen()
 # calculate the width and height
-width = (TILESIZE * MAP_WIDTH) + max(200, INVWIDTH * 50)
-num_rows = int(ceil((len(resources) / INVWIDTH)))
+width = (TILE_SIZE * MAP_WIDTH) + max(200, INV_WIDTH * 50)
+num_rows = int(ceil((len(resources) / INV_WIDTH)))
 inventory_height = num_rows * 120 + 40
-height = (TILESIZE * MAP_HEIGHT) + inventory_height
+height = (TILE_SIZE * MAP_HEIGHT) + inventory_height
 
 screen.setup(width, height)
 screen.setworldcoordinates(0, 0, width, height)
@@ -298,7 +298,7 @@ screen.bgcolor(BACKGROUND_COLOUR)
 screen.listen()
 
 # register the player image
-screen.register_shape(playerImg)
+screen.register_shape(player_img)
 # register each of the resource images
 for texture in textures.values():
     screen.register_shape(texture)
@@ -306,7 +306,7 @@ for texture in textures.values():
 # create a new player object
 playerT = turtle.Turtle()
 playerT.hideturtle()
-playerT.shape(playerImg)
+playerT.shape(player_img)
 playerT.penup()
 playerT.speed(0)
 
@@ -325,16 +325,16 @@ screen.onkey(move_up, 'w')
 screen.onkey(move_down, 's')
 screen.onkey(move_left, 'a')
 screen.onkey(move_right, 'd')
-screen.onkey(pickUp, 'space')
+screen.onkey(pick_up, 'space')
 
 # set up the keys for placing and crafting each resource
-bindPlacingKeys()
-bindCraftingKeys()
+bind_placing_keys()
+bind_crafting_keys()
 
 # these functions are defined above
-generateRandomWorld()
-drawWorld()
-drawInventory()
-generateInstructions()
-drawPlayer()
+generate_random_world()
+draw_world()
+draw_inventory()
+generate_instructions()
+draw_player()
 playerT.showturtle()
