@@ -4,10 +4,10 @@
 
 ## Controls
 
-`WASD` to move
-`Space` to pick up resources
-`Keys 1-8` to place resources
-`r, u, p` to craft a resource
+* `WASD` to move
+* `Space` to pick up resources
+* `Keys 1-8` to place resources
+* `r, u, p` to craft a resource
 
 **Source**: https://codeclubprojects.org/en-GB/python/codecraft/
 
